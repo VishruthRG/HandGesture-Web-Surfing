@@ -5,6 +5,13 @@ import matplotlib.pyplot as plt
 import keras
 from keras import models, layers
 
+alphabet_list = [chr(x) for x in range(ord('a'),ord('z')+1)]
+alphabet_dict = {}
+count = 0
+for i in alphabet_list:
+    alphabet_dict[count] = i
+    count += 1
+
 
 train_file_path = "dataset/sign_mnist_train.csv"
 test_file_path = "dataset/sign_mnist_test.csv"
@@ -23,37 +30,42 @@ test_data = test_data_df.loc[:,test_data_df.columns != label_col].to_numpy()
 #print(test_labels.shape, test_data.shape)
 
 
-#to_print = train_data[14]
+#to_print = train_data[17]
 #to_print = to_print.reshape(28,28)
 #plt.figure()
 #plt.imshow(to_print)
 #plt.grid(False)
 #plt.show()
 
-#print("Label value = ", train_labels[14])
+
+#print("Label value =", alphabet_dict[train_labels[17]])
+
+train_data = train_data.reshape(-1, 28,28) / 255.0
+test_data = test_data.reshape(-1, 28,28) / 255.0
 
 '''
-# This model is stored in hand_sign_model.h5, gives test accuracy of 70%
-
 model = keras.models.Sequential([
-    keras.layers.Flatten(input_shape=(784,)),
-    keras.layers.Dense(128, activation='relu'),
+    keras.layers.Flatten(input_shape=(28,28)),
+    keras.layers.Dense(128, activation = 'relu'),
     keras.layers.Dense(26, activation = 'softmax')
 ])
 
 model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics = ['accuracy'])
 
-model.summary()
+#model.summary()
 
-model.fit(train_data, train_labels, epochs=30 ,batch_size=24)
+model.fit(train_data, train_labels, epochs=40)
 
 predictions = model.predict(test_data)
 
 test_loss, test_acc = model.evaluate(test_data, test_labels)
 print("Test loss = ", test_loss, "Test_accuracy = ", test_acc*100, "%")
+
+model.save('hand_sign_dense_model')
 '''
-new_train_data = train_data.reshape(-1,28,28)
-new_test_data = test_data.reshape(-1,28,28)
+
+#new_train_data = train_data.reshape(-1,28,28)
+#new_test_data = test_data.reshape(-1,28,28)
 
 
 # CNN model
@@ -68,11 +80,19 @@ model.add(layers.Dense(32, activation= 'sigmoid'))
 model.add(layers.Dense(32, activation = 'sigmoid'))
 model.add(layers.Dense(26, activation= 'softmax'))
 
-model.compile(optimizer='rmsprop', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
 model.summary()
 
-model.fit(new_train_data, train_labels, epochs=10, batch_size=24)
+model.fit(train_data, train_labels, epochs=6, batch_size=24)
+
+predictions = model.predict(test_data)
+
+test_loss, test_acc = model.evaluate(test_data, test_labels)
+print("Test loss = ", test_loss, "Test_accuracy = ", test_acc*100, "%")
+
+model.save('hand_sign_cnn_model.h5')
+
 
 
 
