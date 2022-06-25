@@ -11,7 +11,7 @@ count = 0
 for i in alphabet_list:
     alphabet_dict[count] = i
     count += 1
-
+print(alphabet_dict)
 
 train_file_path = "dataset/sign_mnist_train.csv"
 test_file_path = "dataset/sign_mnist_test.csv"
@@ -69,7 +69,7 @@ model.save('hand_sign_dense_model')
 
 
 # CNN model
-
+'''
 model = models.Sequential()
 model.add(layers.Conv2D(128, (3, 3), activation = 'relu', input_shape = (28,28, 1)))
 model.add(layers.MaxPool2D(2, 2))
@@ -92,7 +92,20 @@ test_loss, test_acc = model.evaluate(test_data, test_labels)
 print("Test loss = ", test_loss, "Test_accuracy = ", test_acc*100, "%")
 
 model.save('hand_sign_cnn_model.h5')
+'''
 
+model = keras.models.load_model('hand_sign_cnn_model.h5')
+
+my_test_data_df = pd.read_csv('my_test.csv')
+my_test_data = my_test_data_df.to_numpy() / 255.0
+#print(my_test_data)
+my_test_data = my_test_data.reshape(-1,28,28)
+#plt.figure()
+#plt.imshow(my_test_data[0])
+#plt.grid(False)
+#plt.show()
+predictions = model.predict(my_test_data)
+print(alphabet_dict[np.argmax(predictions[2])])
 
 
 
